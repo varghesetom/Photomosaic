@@ -31,8 +31,8 @@ class PhotoMosaic:
     def get_avg_color_for_regions(self, piece_width=50, piece_height=50):
         width, height = self.img.size 
         region_colors = [] 
-        for i in range(0, width // piece_width):
-            for j in range(0, height // piece_height):
+        for i in range(width // piece_width):
+            for j in range(height // piece_height):
                box = (i * piece_width, j * piece_height, (i * piece_width) + piece_width, (j * piece_height) + piece_height)
                #box_coords.append(box) 
                avg_color = self.get_avg_color(self.img.crop(box))
@@ -49,10 +49,22 @@ class PhotoMosaic:
         r_avg, g_avg, b_avg = r_total / len(rgb_pixels), g_total / len(rgb_pixels), b_total / len(rgb_pixels) 
         return (round(r_avg), round(g_avg), round(b_avg)) 
 
+    def create_new_img(self, piece_width = 50, piece_height = 50):
+        width, height = self.img.size 
+        new_width, new_height = width // piece_width, height // piece_height 
+        assert new_width * new_height == len(self.region_colors), "New image must be equal to dimension of array containing colors for all the broken up pieces of original" 
+        im = Image.new("RGBA", (new_width, new_height)) 
+        counter = 0 
+        for i in range(width // piece_width):
+            for j in range(height // piece_height):
+                im.putpixel((i, j), self.region_colors[counter]) 
+                counter += 1 
+        im.save("new_inp.png")
 
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    print(pm.most_frequent_color())
-    print(pm.region_colors)
+    print(pm.region_colors, len(pm.region_colors))
+    print(pm.img.size)
+    pm.create_new_img()
 
 
