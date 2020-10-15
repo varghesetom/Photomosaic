@@ -19,6 +19,8 @@ class PhotoMosaic:
 
     def __init__(self):
         self.img = self.get_img()
+        self.piece_width = 50 
+        self.piece_height = 50 
         self.palette = self.img.convert('P', palette=Image.ADAPTIVE, colors=16)
         self.region_colors = self.get_avg_color_for_regions()
 
@@ -28,20 +30,21 @@ class PhotoMosaic:
             im.load()  ## PIL can be "lazy" so need to explicitly load image 
             return im 
 
-    def get_avg_color_for_regions(self, piece_width=50, piece_height=50):
-        width, height = self.img.size 
-        region_colors = [] 
-        for i in range(width // piece_width):
-            for j in range(height // piece_height):
-               box = (i * piece_width, j * piece_height, (i * piece_width) + piece_width, (j * piece_height) + piece_height)
-               #box_coords.append(box) 
-               avg_color = self.get_avg_color(self.img.crop(box))
-               region_colors.append(avg_color)
+    def get_avg_color_for_regions(self):
+        box_regions = self.divvy_into_box_regions() 
+        region_colors = [self.get_avg_color(self.img.crop(box)) for box in box_regions]
         return region_colors 
 
-    def divvy_up_region_into_boxes(piece_width, piece_height):
-        pass
-        
+    def divvy_into_box_regions(self): 
+        width, height = self.img.size 
+        regions = [] 
+        for i in range(width // self.piece_width):
+            for j in range(height // self.piece_height):
+                regions.append(self.calculate_box_region(i, j))
+        return regions 
+
+    def calculate_box_region(self, col, row):
+        return (col * self.piece_width, row * self.piece_height, (col * self.piece_width) + self.piece_width, (row * self.piece_height) + self.piece_height)
 
     def get_avg_color(self, region):
 #        width, height = self.img.size 
@@ -53,22 +56,22 @@ class PhotoMosaic:
         r_avg, g_avg, b_avg = r_total / len(rgb_pixels), g_total / len(rgb_pixels), b_total / len(rgb_pixels) 
         return (round(r_avg), round(g_avg), round(b_avg)) 
 
-    def create_new_img(self, piece_width = 50, piece_height = 50):
+    def create_new_img(self):
         width, height = self.img.size 
-        new_width, new_height = width // piece_width, height // piece_height 
+        new_width, new_height = width // self.piece_width, height // self.piece_height 
         assert new_width * new_height == len(self.region_colors), "New image must be equal to dimension of array containing colors for all the broken up pieces of original" 
         im = Image.new("RGBA", (new_width, new_height)) 
         counter = 0 
-        for i in range(width // piece_width):
-            for j in range(height // piece_height):
+        for i in range(width // self.piece_width):
+            for j in range(height // self.piece_height):
                 im.putpixel((i, j), self.region_colors[counter]) 
                 counter += 1 
         im.save("new_inp.png")
 
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    #print(pm.region_colors, len(pm.region_colors))
-    #print(pm.img.size)
+    print(pm.region_colors, len(pm.region_colors))
+    print(pm.img.size)
     pm.create_new_img()
 
 
