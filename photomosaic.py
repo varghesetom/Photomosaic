@@ -43,8 +43,8 @@ class PhotoMosaic:
                 regions.append(self.calculate_box_region(i, j))
         return regions 
 
-    def calculate_box_region(self, col, row):
-        return (col * self.piece_width, row * self.piece_height, (col * self.piece_width) + self.piece_width, (row * self.piece_height) + self.piece_height)
+    def calculate_box_region(self, width, height):
+        return (width * self.piece_width, height * self.piece_height, (width * self.piece_width) + self.piece_width, (height * self.piece_height) + self.piece_height)
 
     def get_avg_color(self, region):
 #        width, height = self.img.size 
