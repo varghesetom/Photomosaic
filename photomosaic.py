@@ -39,6 +39,10 @@ class PhotoMosaic:
                region_colors.append(avg_color)
         return region_colors 
 
+    def divvy_up_region_into_boxes(piece_width, piece_height):
+        pass
+        
+
     def get_avg_color(self, region):
 #        width, height = self.img.size 
         width, height = region.size 
@@ -63,8 +67,8 @@ class PhotoMosaic:
 
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    print(pm.region_colors, len(pm.region_colors))
-    print(pm.img.size)
+    #print(pm.region_colors, len(pm.region_colors))
+    #print(pm.img.size)
     pm.create_new_img()
 
 
