@@ -5,28 +5,43 @@ import os
 from PIL import Image 
 import functools 
 
-def validate_input_image(func):
+def validate_sys_input(func):
     @functools.wraps(func)
     def validated(*args):
         if len(sys.argv) < 2: 
-            raise ValueError("Need image to crop") 
+            raise ValueError("Need additional image or dir argument") 
             sys.exit(1)
         result = func(*args)
         return result 
     return validated 
 
+@validate_sys_input
+def validate_input_is_image(func):
+    @functools.wraps(func)
+    def validated(*args):
+        cli_arg = args[1] 
+        if not (cli_arg.endswith(".png") or cli_arg.endswith(".jpg")):
+            raise ValueError("command line argument must be of image type.")
+            sys.exit(1) 
+        result = func(*args) 
+        return result 
+    return validated 
+
 class PhotoMosaic:
 
-    def __init__(self):
-        self.img = self.get_img()
+    def __init__(self, filename = None):
+        if filename is None: 
+            filename = sys.argv[1] 
+        self.img = self._get_img(filename)
+        self.name = filename 
         self.piece_width = 50 
         self.piece_height = 50 
         self.palette = self.img.convert('P', palette=Image.ADAPTIVE, colors=16)
         self.region_colors = self.get_avg_color_for_regions()
 
-    @validate_input_image
-    def get_img(self):
-        with Image.open(sys.argv[1]) as im:
+    @validate_input_is_image
+    def _get_img(self, filename): 
+        with Image.open(filename) as im:
             im.load()  ## PIL can be "lazy" so need to explicitly load image 
             return im 
 
@@ -47,7 +62,6 @@ class PhotoMosaic:
         return (width * self.piece_width, height * self.piece_height, (width * self.piece_width) + self.piece_width, (height * self.piece_height) + self.piece_height)
 
     def get_avg_color(self, region):
-#        width, height = self.img.size 
         width, height = region.size 
         rgb_pixels = region.getcolors(width * height)
         r_total = g_total = b_total = 0 
@@ -61,17 +75,19 @@ class PhotoMosaic:
         new_width, new_height = width // self.piece_width, height // self.piece_height 
         assert new_width * new_height == len(self.region_colors), "New image must be equal to dimension of array containing colors for all the broken up pieces of original" 
         im = Image.new("RGBA", (new_width, new_height)) 
-        counter = 0 
+        counter = 0  
         for i in range(width // self.piece_width):
             for j in range(height // self.piece_height):
                 im.putpixel((i, j), self.region_colors[counter]) 
                 counter += 1 
-        im.save("new_inp.png")
+        im.save(f"new_img.png") 
+
+
 
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    print(pm.region_colors, len(pm.region_colors))
-    print(pm.img.size)
-    pm.create_new_img()
+    #print(pm.region_colors, len(pm.region_colors))
+    #print(pm.img.size)
+    #pm.create_new_img()
 
 

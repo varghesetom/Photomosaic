@@ -8,6 +8,11 @@ from PhotoMosaic import PhotoMosaic
 
 pm = PhotoMosaic() 
 
+def create_test_img(width, height):
+    im = Image.new("RGBA", (width, height))
+    (im.putpixel((i, j), (0,0,0)) for i in range(width) for j in range(height)) 
+    return im 
+
 def test_init_types():
     assert type(pm.img.size) == tuple 
     assert type(pm.img.size[0]) == int 
@@ -27,10 +32,6 @@ def test_image_size(size):
     assert width > 0
     assert height > 0 
 
-@pytest.fixture 
-def example_piece_width_and_height():
-    return [50, 50] 
-
 @pytest.mark.parametrize("width, height", [
     (20, 40),
     (40, 20),
@@ -40,4 +41,5 @@ def test_box_region_is_valid_square(width, height):
     top_left_x, top_left_y, bottom_right_x, bottom_right_y = pm.calculate_box_region(width, height)  
     assert bottom_right_y > top_left_y 
     assert bottom_right_x > top_left_x 
+
 
