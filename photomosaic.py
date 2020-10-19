@@ -2,32 +2,29 @@
 
 import sys 
 import os 
-from PIL import Image 
+import math 
 import functools 
 import validation_util 
+import source_img_utils 
+from PIL import Image 
+from BaseImage import BaseImage
 
-class PhotoMosaic:
+log = open("log.txt", "w+") 
 
-    def __init__(self, filename = None):
+class PhotoMosaic(BaseImage):
+
+    @validation_util.validate_input_is_image 
+    def __init__(self, filename = None, piece_width=50, piece_height=50):
         if filename is None: 
             filename = sys.argv[1] 
-        self.img = self._get_img(filename)
-        self.name = filename 
-        self.piece_width = 50 
-        self.piece_height = 50 
+        super().__init__(filename) 
+        self.piece_width = piece_width
+        self.piece_height = piece_height
         self.palette = self.img.convert('P', palette=Image.ADAPTIVE, colors=16)
-        self.region_colors = self.get_avg_color_for_regions()
-
-    @validation_util.validate_input_is_image
-    def _get_img(self, filename): 
-        with Image.open(filename) as im:
-            im.load()  ## PIL can be "lazy" so need to explicitly load image 
-            return im 
+        self.regions_with_colors = self.get_avg_color_for_regions()
 
     def get_avg_color_for_regions(self):
-        box_regions = self.divvy_into_box_regions() 
-        region_colors = [self.get_avg_color(self.img.crop(box)) for box in box_regions]
-        return region_colors 
+        return {box : self.get_avg_color(self.img.crop(box)) for box in self.divvy_into_box_regions()}
 
     def divvy_into_box_regions(self): 
         width, height = self.img.size 
@@ -40,14 +37,34 @@ class PhotoMosaic:
     def calculate_box_region(self, width, height):
         return (width * self.piece_width, height * self.piece_height, (width * self.piece_width) + self.piece_width, (height * self.piece_height) + self.piece_height)
 
-    def get_avg_color(self, region):
-        width, height = region.size 
-        rgb_pixels = region.getcolors(width * height)
-        r_total = g_total = b_total = 0 
-        for count, rgb in rgb_pixels:
-            r_total, g_total, b_total = r_total + rgb[0], g_total + rgb[1], b_total + rgb[2] 
-        r_avg, g_avg, b_avg = r_total / len(rgb_pixels), g_total / len(rgb_pixels), b_total / len(rgb_pixels) 
-        return (round(r_avg), round(g_avg), round(b_avg)) 
+    def create_mosaic(self):
+        mosaic = self.img.copy() 
+        source_img_data = source_img_utils.read_source_avg_colors()[0]  ## calling in thumbnail of src imgs 
+        for region, region_color in self.regions_with_colors.items():
+            log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
+            source_img_match = self.match_input_region_to_source_imgs(region_color, source_img_data) 
+#            print(region, source_img_match, type(source_img_match["image_match"])) 
+            thumbnail_img = Image.open(source_img_match["image_match"]) 
+            upper_left = (region[0], region[1]) 
+            mosaic.paste(thumbnail_img, upper_left) 
+        mosaic.save("ahah.png") 
+
+    def match_input_region_to_source_imgs(self, region_color, source_img_data):
+        min_dist = sys.maxsize 
+        result = {'image_match' : 0}
+        for name, color in source_img_data.items():
+            dist = self.calculate_euclidean_dist(region_color, color) 
+            log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
+            if dist < min_dist: 
+                log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n\n") 
+                min_dist = dist 
+                result['image_match'] = name
+        return result 
+
+    def calculate_euclidean_dist(self, rgb_tup1, rgb_tup2):
+        r1, g1, b1 = rgb_tup1 
+        r2, g2, b2 = rgb_tup2 
+        return  math.sqrt(((r2 - r1) ** 2 + (g1 - g2) ** 2 + (b1 -b2) ** 2))
 
     def create_new_img(self):
         width, height = self.img.size 
@@ -61,11 +78,16 @@ class PhotoMosaic:
                 counter += 1 
         im.save(f"new_img.png") 
 
-
-
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    #print(pm.region_colors, len(pm.region_colors))
+    pm.create_mosaic() 
+    log.close() 
+    #source_img_avg_colors = source_img_utils.collect_avg_colors_for_source_imgs() 
+#    data = source_img_utils.read_source_avg_colors()[0]
+#    for name, color in data.items():
+#        print(f"img: {name}, avg_color: {color}")
+
+    #print(pm.region_colors, len(pm.region_colors), pm.img.size)
     #print(pm.img.size)
     #pm.create_new_img()
 
