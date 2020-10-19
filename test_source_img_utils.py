@@ -36,6 +36,4 @@ def trim_func(func, width, height):
     assert output_width == output_height
     assert output_width == smallest_dimension 
 
-r = create_test_img(100,100)
-print(r, r.size) 
 

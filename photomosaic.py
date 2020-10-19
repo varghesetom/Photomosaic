@@ -4,28 +4,7 @@ import sys
 import os 
 from PIL import Image 
 import functools 
-
-def validate_sys_input(func):
-    @functools.wraps(func)
-    def validated(*args):
-        if len(sys.argv) < 2: 
-            raise ValueError("Need additional image or dir argument") 
-            sys.exit(1)
-        result = func(*args)
-        return result 
-    return validated 
-
-@validate_sys_input
-def validate_input_is_image(func):
-    @functools.wraps(func)
-    def validated(*args):
-        cli_arg = args[1] 
-        if not (cli_arg.endswith(".png") or cli_arg.endswith(".jpg")):
-            raise ValueError("command line argument must be of image type.")
-            sys.exit(1) 
-        result = func(*args) 
-        return result 
-    return validated 
+import validation_util 
 
 class PhotoMosaic:
 
@@ -39,7 +18,7 @@ class PhotoMosaic:
         self.palette = self.img.convert('P', palette=Image.ADAPTIVE, colors=16)
         self.region_colors = self.get_avg_color_for_regions()
 
-    @validate_input_is_image
+    @validation_util.validate_input_is_image
     def _get_img(self, filename): 
         with Image.open(filename) as im:
             im.load()  ## PIL can be "lazy" so need to explicitly load image 
