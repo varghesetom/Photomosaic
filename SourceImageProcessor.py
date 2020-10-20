@@ -13,29 +13,42 @@ from PIL import Image
 class SourceImageProcessor:
 
     def __init__(self, img_dir, size=(50,50)):
-        self.img_dir = img_dir 
+        self.is_from_img_sets = False 
+        self.img_dir = self.img_dir_name_cleaned(img_dir) 
         self.size = size 
 
+    def img_dir_name_cleaned(self, img_dir):
+        if re.search(r'img_sets', img_dir): 
+            base_img_dir = re.sub("img_sets/", "", img_dir)  
+            self.is_from_img_sets = True 
+        else:
+            base_img_dir = img_dir 
+        return base_img_dir 
+
     def read_source_avg_colors(self): 
-        loc1 = self.img_dir + ".txt" 
-        loc2 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
-        if os.path.isfile(loc1) or os.path.isfile(loc2): 
-            return self.read_JSON_contents()
-        print(f"JSON file provided does not exist. Running program to save avg_color results to JSON file as '{self.img_dir}.json' and re-trying to read JSON contents.") 
         if not os.path.exists(f"img_sets/{self.img_dir}"):
             p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}", shell = True) 
         if not os.path.exists(f"img_sets/{self.img_dir}/thumbnails"):
             p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}/thumbnails/", shell = True) 
+        loc1 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
+        loc2 = self.img_dir + ".txt" 
+        if (os.path.isfile(loc1) or os.path.isfile(loc2)): 
+            thumbnail_path = f"img_sets/{self.img_dir}/thumbnails" 
+            if not os.path.exists(thumbnail_path) or not os.listdir(thumbnail_path): 
+                self.save_avg_colors_to_JSON() 
+            else: 
+                return self.read_JSON_contents(loc1, loc2) 
+        print(f"JSON file provided does not exist. Running program to save avg_color results to JSON file as '{self.img_dir}.json' and re-trying to read JSON contents.") 
         self.save_avg_colors_to_JSON() 
-        return self.read_JSON_contents()
+        return self.read_JSON_contents(loc1, loc2)
 
-    def read_JSON_contents(self):
+    def read_JSON_contents(self, loc1, loc2):
         try: 
-            with open("img_sets/img_jsons/" + self.img_dir + ".txt", 'r') as json_file:
+            with open(loc1, 'r') as json_file:
                 return json.load(json_file) 
         except FileNotFoundError:
             try:
-                with open(self.img_dir + ".txt", 'r') as json_file:
+                with open(loc2, 'r') as json_file:
                     return json.load(json_file) 
             except FileNotFoundError:
                 print("JSON file is not found. Exiting...") 
@@ -60,7 +73,7 @@ class SourceImageProcessor:
     def standardize_source_images(self): 
         output = {}
         for img_class in self.get_images_from_img_dir(): 
-            replacements = [(self.img_dir, ""), ("/", "")] 
+            replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
             new_name = img_class.name
             for old, new in replacements:
                 new_name = re.sub(old, new, new_name) 
@@ -78,9 +91,12 @@ class SourceImageProcessor:
         return output 
 
     def get_images_from_img_dir(self):
-        for fn in os.listdir(self.img_dir):
+        search_dir = self.img_dir 
+        if self.is_from_img_sets: 
+            search_dir = f"img_sets/{self.img_dir}" 
+        for fn in os.listdir(search_dir):
             if fn.endswith(".jpg") or fn.endswith(".png"): 
-                yield BaseImage(self.img_dir + "/" + fn) 
+                yield BaseImage(search_dir + "/" + fn) 
 
 def trim_width(img, width, height):
     if width <= height: return img
