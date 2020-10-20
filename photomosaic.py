@@ -5,9 +5,9 @@ import os
 import math 
 import functools 
 import validation_util 
-import source_img_utils 
 from PIL import Image 
 from BaseImage import BaseImage
+from SourceImageProcessor import SourceImageProcessor 
 
 #log = open("log.txt", "w+") 
 
@@ -40,7 +40,8 @@ class PhotoMosaic(BaseImage):
     def create_mosaic(self):
         mosaic = self.create_trimmed_mosaic_base() 
         size = (self.piece_width, self.piece_height) 
-        source_img_data = source_img_utils.read_source_avg_colors(size=size)[0]  ## calling in thumbnail of src imgs 
+        s_img_p = SourceImageProcessor(sys.argv[2], (25,25)) 
+        source_img_data = s_img_p.read_source_avg_colors()[0]  ## calling in thumbnail of src imgs 
         for region, region_color in self.regions_with_colors.items():
             #log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
             source_img_match = self.match_input_region_to_source_imgs(region_color, source_img_data) 
