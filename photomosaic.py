@@ -9,12 +9,12 @@ import source_img_utils
 from PIL import Image 
 from BaseImage import BaseImage
 
-log = open("log.txt", "w+") 
+#log = open("log.txt", "w+") 
 
 class PhotoMosaic(BaseImage):
 
     @validation_util.validate_input_is_image 
-    def __init__(self, filename = None, piece_width=50, piece_height=50):
+    def __init__(self, filename = None, piece_width=25, piece_height=25):
         if filename is None: 
             filename = sys.argv[1] 
         super().__init__(filename) 
@@ -39,24 +39,25 @@ class PhotoMosaic(BaseImage):
 
     def create_mosaic(self):
         mosaic = self.img.copy() 
-        source_img_data = source_img_utils.read_source_avg_colors()[0]  ## calling in thumbnail of src imgs 
+        size = (self.piece_width, self.piece_height) 
+        source_img_data = source_img_utils.read_source_avg_colors(size=size)[0]  ## calling in thumbnail of src imgs 
         for region, region_color in self.regions_with_colors.items():
-            log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
+            #log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
             source_img_match = self.match_input_region_to_source_imgs(region_color, source_img_data) 
-#            print(region, source_img_match, type(source_img_match["image_match"])) 
             thumbnail_img = Image.open(source_img_match["image_match"]) 
             upper_left = (region[0], region[1]) 
+            img_mask = thumbnail_img.convert("RGBA") 
             mosaic.paste(thumbnail_img, upper_left) 
-        mosaic.save("ahah.png") 
+        mosaic.save("mosaic.png") 
 
     def match_input_region_to_source_imgs(self, region_color, source_img_data):
         min_dist = sys.maxsize 
         result = {'image_match' : 0}
         for name, color in source_img_data.items():
             dist = self.calculate_euclidean_dist(region_color, color) 
-            log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
+            #log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
             if dist < min_dist: 
-                log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n\n") 
+                #log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n\n") 
                 min_dist = dist 
                 result['image_match'] = name
         return result 
@@ -66,7 +67,7 @@ class PhotoMosaic(BaseImage):
         r2, g2, b2 = rgb_tup2 
         return  math.sqrt(((r2 - r1) ** 2 + (g1 - g2) ** 2 + (b1 -b2) ** 2))
 
-    def create_new_img(self):
+    def create_pixellation_img(self):
         width, height = self.img.size 
         new_width, new_height = width // self.piece_width, height // self.piece_height 
         assert new_width * new_height == len(self.region_colors), "New image must be equal to dimension of array containing colors for all the broken up pieces of original" 
@@ -76,19 +77,11 @@ class PhotoMosaic(BaseImage):
             for j in range(height // self.piece_height):
                 im.putpixel((i, j), self.region_colors[counter]) 
                 counter += 1 
-        im.save(f"new_img.png") 
+        im.save(f"pixellated.png") 
 
 if __name__ == "__main__":
     pm = PhotoMosaic()
     pm.create_mosaic() 
-    log.close() 
-    #source_img_avg_colors = source_img_utils.collect_avg_colors_for_source_imgs() 
-#    data = source_img_utils.read_source_avg_colors()[0]
-#    for name, color in data.items():
-#        print(f"img: {name}, avg_color: {color}")
-
-    #print(pm.region_colors, len(pm.region_colors), pm.img.size)
-    #print(pm.img.size)
-    #pm.create_new_img()
+    #log.close() 
 
 
