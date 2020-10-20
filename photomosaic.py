@@ -38,7 +38,7 @@ class PhotoMosaic(BaseImage):
         return (width * self.piece_width, height * self.piece_height, (width * self.piece_width) + self.piece_width, (height * self.piece_height) + self.piece_height)
 
     def create_mosaic(self):
-        mosaic = self.img.copy() 
+        mosaic = self.create_trimmed_mosaic_base() 
         size = (self.piece_width, self.piece_height) 
         source_img_data = source_img_utils.read_source_avg_colors(size=size)[0]  ## calling in thumbnail of src imgs 
         for region, region_color in self.regions_with_colors.items():
@@ -49,6 +49,15 @@ class PhotoMosaic(BaseImage):
             img_mask = thumbnail_img.convert("RGBA") 
             mosaic.paste(thumbnail_img, upper_left) 
         mosaic.save("mosaic.png") 
+
+    def create_trimmed_mosaic_base(self):
+        mosaic = self.img.copy() 
+        width, height = self.img.size 
+        count, rem  = divmod(width, self.piece_width) 
+        mosaic_width = self.piece_width * count 
+        count, rem = divmod(height, self.piece_height) 
+        mosaic_height = self.piece_height * count 
+        return mosaic.crop((0, 0, mosaic_width, mosaic_height)) 
 
     def match_input_region_to_source_imgs(self, region_color, source_img_data):
         min_dist = sys.maxsize 
@@ -81,7 +90,9 @@ class PhotoMosaic(BaseImage):
 
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    pm.create_mosaic() 
+    pm.create_mosaic()
+    print(pm.img.size) 
+    #pm.create_mosaic() 
     #log.close() 
 
 
