@@ -14,34 +14,48 @@ from SourceImageProcessor import SourceImageProcessor
 class PhotoMosaic(BaseImage):
 
     @validation_util.validate_input_is_image 
-    def __init__(self, filename = None, piece_width=25, piece_height=25):
+    def __init__(self, filename = None, piece_width=5, piece_height=5):
         if filename is None: 
             filename = sys.argv[1] 
-        super().__init__(filename) 
+            super().__init__(filename) 
+        else:   ## used only for testing -- the client should still pass in a CLI image arg 
+            self.img = filename 
         self.piece_width = piece_width
         self.piece_height = piece_height
         self.palette = self.img.convert('P', palette=Image.ADAPTIVE, colors=16)
         self.regions_with_colors = self.get_avg_color_for_regions()
 
     def get_avg_color_for_regions(self):
+        '''
+        Determine the average color for each box region of the input image 
+        '''
         return {box : self.get_avg_color(self.img.crop(box)) for box in self.divvy_into_box_regions()}
 
     def divvy_into_box_regions(self): 
+        '''
+        Helper to crop image into W*L boxes. 
+        '''
         width, height = self.img.size 
         regions = [] 
         for i in range(width // self.piece_width):
             for j in range(height // self.piece_height):
                 regions.append(self.calculate_box_region(i, j))
+        print(f"width: {width}, height: {height}, # of regions: {len(regions)}") 
+        self.create_trimmed_mosaic_base() 
         return regions 
 
     def calculate_box_region(self, width, height):
-        return (width * self.piece_width, height * self.piece_height, (width * self.piece_width) + self.piece_width, (height * self.piece_height) + self.piece_height)
+        left = width * self.piece_width 
+        top = height * self.piece_height 
+        right = left + self.piece_width 
+        bottom = top + self.piece_height 
+        return (left, top, right, bottom)
 
     def create_mosaic(self):
         mosaic = self.create_trimmed_mosaic_base() 
         size = (self.piece_width, self.piece_height) 
         s_img_p = SourceImageProcessor(sys.argv[2], (25,25)) 
-        source_img_data = s_img_p.read_source_avg_colors()[0]  ## calling in thumbnail of src imgs 
+        source_img_data = s_img_p.read_source_avg_colors()[0]  ## calling in src img thumbnails
         for region, region_color in self.regions_with_colors.items():
             #log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
             source_img_match = self.match_input_region_to_source_imgs(region_color, source_img_data) 
@@ -58,6 +72,7 @@ class PhotoMosaic(BaseImage):
         mosaic_width = self.piece_width * count 
         count, rem = divmod(height, self.piece_height) 
         mosaic_height = self.piece_height * count 
+        print(width, height, mosaic.crop((0,0,mosaic_width,mosaic_height)).size)
         return mosaic.crop((0, 0, mosaic_width, mosaic_height)) 
 
     def match_input_region_to_source_imgs(self, region_color, source_img_data):
@@ -91,7 +106,7 @@ class PhotoMosaic(BaseImage):
 
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    pm.create_mosaic()
+    #pm.create_mosaic()
     print(pm.img.size) 
     #pm.create_mosaic() 
     #log.close() 
