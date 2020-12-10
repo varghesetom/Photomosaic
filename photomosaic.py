@@ -17,6 +17,7 @@ from PIL import Image
 from BaseImage import BaseImage
 from SourceImageProcessor import SourceImageProcessor 
 from collections import defaultdict 
+from helpers import round_to_nearest_10 
 
 #log = open("log.txt", "w+") 
 
@@ -86,7 +87,7 @@ class PhotoMosaic(BaseImage):
                 img_mask = thumbnail_img.convert("RGBA") 
                 mosaic.paste(thumbnail_img, upper_left) 
             print("saving mosaic") 
-            mosaic.save(f"mosaic_{self.name}_{sys.argv[2]}") 
+            mosaic.save(f"mosaic_{self.name[:-4]}_{s_img_p.img_dir}.png") 
         except ValueError as v:
             print(f"Unexpected error came up after trying to use stored img dir to save mosaic: {v}") 
             sys.exit(1) 
