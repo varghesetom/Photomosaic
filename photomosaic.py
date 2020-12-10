@@ -8,14 +8,15 @@ import validation_util
 from PIL import Image 
 from BaseImage import BaseImage
 from SourceImageProcessor import SourceImageProcessor 
+from collections import defaultdict 
 
-#log = open("log.txt", "w+") 
+log = open("log.txt", "w+") 
 
 class PhotoMosaic(BaseImage):
 
     @validation_util.validate_input_is_image 
     @validation_util.validate_img_dir 
-    def __init__(self, filename = None, piece_width=5, piece_height=5):
+    def __init__(self, filename = None, piece_width=25, piece_height=25):
         if filename is None: 
             filename = sys.argv[1] 
             super().__init__(filename) 
@@ -56,15 +57,25 @@ class PhotoMosaic(BaseImage):
         mosaic = self.create_trimmed_mosaic_base() 
         size = (self.piece_width, self.piece_height) 
         s_img_p = SourceImageProcessor(sys.argv[2], (25,25)) 
-        source_img_data = s_img_p.read_source_avg_colors()[0]  ## calling in src img thumbnails
-        for region, region_color in self.regions_with_colors.items():
-            #log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
-            source_img_match = self.match_input_region_to_source_imgs(region_color, source_img_data) 
-            thumbnail_img = Image.open(source_img_match["image_match"]) 
-            upper_left = (region[0], region[1]) 
-            img_mask = thumbnail_img.convert("RGBA") 
-            mosaic.paste(thumbnail_img, upper_left) 
-        mosaic.save("mosaic.png") 
+        json_data = s_img_p.read_source_avg_colors()[0]  ## calling in src img thumbnails
+        json_index = self.get_index(json_data) 
+        try: 
+            for region, region_color in self.regions_with_colors.items():
+                log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
+                source_img_match = self.find_closest_match_with_index(region_color, json_index)  
+                log.write(f"index result for {region_color}, {source_img_match}")
+                if not source_img_match: 
+                    log.write(f"Need to go through entire set of imgs for this color here {region_color}\n") 
+                    source_img_match = self.euclidean_match_with_json_data(region_color, json_data) 
+                thumbnail_img = Image.open(source_img_match["image_match"]) 
+                upper_left = (region[0], region[1]) 
+                img_mask = thumbnail_img.convert("RGBA") 
+                mosaic.paste(thumbnail_img, upper_left) 
+            print("saving mosaic") 
+            mosaic.save("mosaic.png") 
+        except ValueError as v:
+            print(f"Unexpected error came up after trying to use stored img dir to save mosaic: {v}") 
+            sys.exit(1) 
 
     def create_trimmed_mosaic_base(self):
         mosaic = self.img.copy() 
@@ -75,14 +86,35 @@ class PhotoMosaic(BaseImage):
         mosaic_height = self.piece_height * count 
         return mosaic.crop((0, 0, mosaic_width, mosaic_height)) 
 
-    def match_input_region_to_source_imgs(self, region_color, source_img_data):
+    def get_index(self, json_data):
+        index = defaultdict(list)  
+        for name, color in json_data.items(): 
+            new_c1, new_c2, new_c3 = round_to_nearest_10(color[0]), round_to_nearest_10(color[1]), round_to_nearest_10(color[2]) 
+            index[(new_c1, new_c2, new_c3)].append((name, color)) 
+        return index 
+
+    def find_closest_match_with_index(self, region_color, index):
+        translated = (round_to_nearest_10(region_color[0]), round_to_nearest_10(region_color[1]), round_to_nearest_10(region_color[2]))
+        if translated in index:
+            source_imgs = index[translated] 
+            min_dist = sys.maxsize 
+            result = {"image_match" : 0} 
+            for name, color in source_imgs:
+                dist = self.calculate_euclidean_dist(region_color, color) 
+                if dist < min_dist:
+                    min_dist = dist 
+                    result["image_match"] = name 
+            log.write(f"Returning index result\n") 
+            return result 
+
+    def euclidean_match_with_json_data(self, region_color, source_img_data):
         min_dist = sys.maxsize 
         result = {'image_match' : 0}
         for name, color in source_img_data.items():
             dist = self.calculate_euclidean_dist(region_color, color) 
-            #log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
+            log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
             if dist < min_dist: 
-                #log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n\n") 
+                log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n\n") 
                 min_dist = dist 
                 result['image_match'] = name
         return result 
@@ -90,7 +122,7 @@ class PhotoMosaic(BaseImage):
     def calculate_euclidean_dist(self, rgb_tup1, rgb_tup2):
         r1, g1, b1 = rgb_tup1 
         r2, g2, b2 = rgb_tup2 
-        return  math.sqrt(((r2 - r1) ** 2 + (g1 - g2) ** 2 + (b1 -b2) ** 2))
+        return math.sqrt(((r2 - r1) ** 2 + (g1 - g2) ** 2 + (b1 -b2) ** 2))
 
     def create_pixellation_img(self):
         width, height = self.img.size 
@@ -104,11 +136,18 @@ class PhotoMosaic(BaseImage):
                 counter += 1 
         im.save(f"pixellated.png") 
 
+def round_to_nearest_10(num):
+    rem = num % 10 
+    if rem < 5:
+        return int(num / 10) * 10 
+    else:
+        return int((num + 10) / 10) * 10 
+
 if __name__ == "__main__":
     pm = PhotoMosaic()
-    #pm.create_mosaic()
+    pm.create_mosaic()
     print(pm.img.size) 
     #pm.create_mosaic() 
-    #log.close() 
+    log.close() 
 
 

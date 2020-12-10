@@ -36,17 +36,31 @@ class SourceImageProcessor:
             print(f"JSON file provided does not exist. Running program to save avg_color results to JSON file as 'img_sets/img_jsons/{self.img_dir}.json' and re-trying to read JSON contents.") 
             self.create_img_subdirs() 
             self.save_avg_colors_to_JSON() 
-            return self.read_JSON_contents(loc1, loc2)
+            return self.read_JSON_contents()
         return contents 
 
     def read_from_existing_JSON_file(self):
         loc1 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
-        if os.path.isfile(loc1): 
-            thumbnail_path = f"img_sets/{self.img_dir}/thumbnails" 
-            if not os.path.exists(thumbnail_path) or not os.listdir(thumbnail_path): 
-                self.save_avg_colors_to_JSON() 
-            else: 
-                return self.read_JSON_contents(loc1, loc2) 
+        if os.path.isfile(loc1) and self.check_if_JSON_corresponding_thumbnails():  
+            print("Using existing JSON and thumbnails to construct mosaic") 
+            return self.read_JSON_contents() 
+        return False 
+
+    def check_if_JSON_corresponding_thumbnails(self):
+        thumbnail_path = f"img_sets/{self.img_dir}/thumbnails" 
+        return False if not os.path.exists(thumbnail_path) or not os.listdir(thumbnail_path) else True
+
+    def read_JSON_contents(self):
+        loc1 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
+        try: 
+            with open(loc1, 'r') as json_file:
+                return json.load(json_file) 
+        except ValueError: 
+            print("Decoding JSON has failed. Exiting...")
+            return False 
+        except FileNotFoundError:
+            print("JSON file is not found. Exiting...") 
+            return False 
     
     def create_img_subdirs(self):
         if not os.path.exists(f"img_sets/{self.img_dir}"):
@@ -55,18 +69,6 @@ class SourceImageProcessor:
         if not os.path.exists(f"img_sets/{self.img_dir}/thumbnails"):
             p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}/thumbnails/", shell = True) 
             p.wait() 
-
-    def read_JSON_contents(self, loc1, loc2):
-        try: 
-            with open(loc1, 'r') as json_file:
-                return json.load(json_file) 
-        except FileNotFoundError:
-            try:
-                with open(loc2, 'r') as json_file:
-                    return json.load(json_file) 
-            except FileNotFoundError:
-                print("JSON file is not found. Exiting...") 
-                sys.exit(1) 
 
     def save_avg_colors_to_JSON(self):
         source_img_dict = [self.collect_avg_colors_for_source_imgs()]
@@ -116,15 +118,15 @@ def trim_name(img_class):
 def trim_width(img, width, height):
     if width <= height: return img
     diff = width - height 
-    left = top = 0 
     right = width - diff 
+    left = top = 0 
     return img.crop((left, top, right, height))  
 
 def trim_height(img, width, height):
     if height <= width: return img
     diff = height - width 
-    left = top = 0 
     bottom = height - diff 
+    left = top = 0 
     return img.crop((left, top, width, bottom)) 
 
 if __name__ == "__main__":
