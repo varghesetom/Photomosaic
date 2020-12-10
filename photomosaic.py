@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+'''
+The main driver -- a mosaic is created for an input image based on source images that will be processed in the SourceImageProcessor file. The input image is divided into squares of 25 x 25 size and are calculated for their average color. Calculating the average color for a boxed region means getting 3 total counts of R, G, and B colored pixels and dividing by the overall total number of pixels. Next, we match that average color for a specific box with one of the source images, which also have a corresponding average color. Because we are looking for the "closest" match for a 3-valued tuple, we can use Euclidean distance. 
+
+But this can take a long time if we have many source images and we have a large input image with many regional boxes because we'd have to find the closest match by going through all the images for each box. We can instead utilize an index to match an input img color-tuple to see which source images are the closest match. A rough hashing is done where the keys are the color-tuples where each value in the color-tuple is rounded to the nearest ten. The values in this dictionary-index are lists of source images. We can then round the current input region color-tuple to the nearest ten for R, G, and B and try to index it. If it doesn't exist, then we search all the source images. 
+
+This means that an index would be more useful when the number of source images are extremely high so that we can more likely find a key match. If there are many misses, then our set of source images isn't large and we can justify just iterating the entire set. 
+'''
+
 import sys 
 import os 
 import math 
@@ -19,9 +27,9 @@ class PhotoMosaic(BaseImage):
     def __init__(self, filename = None, piece_width=25, piece_height=25):
         if filename is None: 
             filename = sys.argv[1] 
-            super().__init__(filename) 
         else:   ## used only for testing -- the client should still pass in a CLI image arg 
             self.img = filename 
+        super().__init__(filename) 
         self.piece_width = piece_width
         self.piece_height = piece_height
         self.palette = self.img.convert('P', palette=Image.ADAPTIVE, colors=16)
@@ -57,7 +65,7 @@ class PhotoMosaic(BaseImage):
         mosaic = self.create_trimmed_mosaic_base() 
         size = (self.piece_width, self.piece_height) 
         s_img_p = SourceImageProcessor(sys.argv[2], (25,25)) 
-        json_data = s_img_p.read_source_avg_colors()[0]  ## calling in src img thumbnails
+        json_data = s_img_p.read_source_avg_colors()[0]  ## calling in src img thumbnails via JSON dict
         json_index = self.get_index(json_data) 
         try: 
             for region, region_color in self.regions_with_colors.items():
@@ -72,7 +80,7 @@ class PhotoMosaic(BaseImage):
                 img_mask = thumbnail_img.convert("RGBA") 
                 mosaic.paste(thumbnail_img, upper_left) 
             print("saving mosaic") 
-            mosaic.save("mosaic.png") 
+            mosaic.save(f"mosaic_{self.name}_{sys.argv[2]}") 
         except ValueError as v:
             print(f"Unexpected error came up after trying to use stored img dir to save mosaic: {v}") 
             sys.exit(1) 
@@ -136,12 +144,6 @@ class PhotoMosaic(BaseImage):
                 counter += 1 
         im.save(f"pixellated.png") 
 
-def round_to_nearest_10(num):
-    rem = num % 10 
-    if rem < 5:
-        return int(num / 10) * 10 
-    else:
-        return int((num + 10) / 10) * 10 
 
 if __name__ == "__main__":
     pm = PhotoMosaic()

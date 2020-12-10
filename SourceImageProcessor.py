@@ -9,6 +9,7 @@ import functools
 import validation_util 
 from BaseImage import BaseImage 
 from PIL import Image 
+import helpers 
 
 class SourceImageProcessor:
 
@@ -89,11 +90,11 @@ class SourceImageProcessor:
     def standardize_source_images(self): 
         output = {}
         for img_class in self.get_images_from_img_dir(): 
-            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + self.trim_name(img_class) + "_thumbnail.jpg"
+            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + helpers.trim_name(img_class) + "_thumbnail.jpg"
             width, height = img_class.img.size 
             trimmed_img = img_class.img 
-            trimmed_img = trim_width(img_class.img, width, height)  
-            trimmed_img = trim_height(img_class.img, width, height)  
+            trimmed_img = helpers.trim_width(img_class.img, width, height)  
+            trimmed_img = helpers.trim_height(img_class.img, width, height)  
             thumbnail = trimmed_img.thumbnail(self.size)  
             if not os.path.exists(f"{thumbnail_name}.png"):
                 trimmed_img.save(thumbnail_name, "png")   ## the trimmed thumbnail will be used for our img
@@ -108,26 +109,6 @@ class SourceImageProcessor:
             if fn.endswith(".jpg") or fn.endswith(".png"): 
                 yield BaseImage(search_dir + "/" + fn) 
 
-    def trim_name(self, img_class):
-        replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
-        new_name = img_class.name
-        for old, new in replacements:
-            new_name = re.sub(old, new, new_name) 
-        return new_name 
-
-def trim_width(img, width, height):
-    if width <= height: return img
-    diff = width - height 
-    right = width - diff 
-    left = top = 0 
-    return img.crop((left, top, right, height))  
-
-def trim_height(img, width, height):
-    if height <= width: return img
-    diff = height - width 
-    bottom = height - diff 
-    left = top = 0 
-    return img.crop((left, top, width, bottom)) 
 
 if __name__ == "__main__":
     print(read_source_avg_colors())

@@ -1,4 +1,7 @@
 
+'''
+Initializing image arguments into true PIL.Image classes. "get_avg_color" is also placed here because this method is closely related to PIL.Images and should only be used in relation to the BaseImage. In the program, this method is used to calculate the average color for each square of the base image. 
+'''
 import validation_util 
 from PIL import Image 
 
