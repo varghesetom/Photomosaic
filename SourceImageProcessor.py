@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+'''
+Here we abstract away from "Photomosaic.py" all the preprocessing we need to do for the source images. Some similarities exist such as calculating the average color. But whereas the input image was divided into boxes and had a corresponding average color calculation, here each source image is converted into a standardized thumbnail before calculating the average color for the entire thumbnail. In other words, a 1:1 correspondence between a source image and a specific color-tuple.
+The other functionalities are specific to user handling. The program will create an "img_sets/[IMG_DIR]" directory to store the img_set and a corresponding JSON file of thumbnails in "img_sets/img_jsons/[IMG_DIR]". Having a JSON makes it easier to directly read in all the thumbnails and their average colors instead of calculating them all over again. 
+'''
+
 import sys 
 import os 
 import subprocess 
@@ -32,6 +37,10 @@ class SourceImageProcessor:
         return base_img_dir 
 
     def read_source_avg_colors(self): 
+        '''
+        read from an existing JSON file else we create the source image subdirectory 
+        and start the calculation process to store them to JSON. 
+        '''
         contents = self.read_from_existing_JSON_file() 
         if not contents: 
             print(f"JSON file provided does not exist. Running program to save avg_color results to JSON file as 'img_sets/img_jsons/{self.img_dir}.json' and re-trying to read JSON contents.") 
@@ -41,6 +50,9 @@ class SourceImageProcessor:
         return contents 
 
     def read_from_existing_JSON_file(self):
+        '''
+        Cannot read from a JSON if it and its thumbnails don't exist 
+        '''
         loc1 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
         if os.path.isfile(loc1) and self.check_if_JSON_corresponding_thumbnails():  
             print("Using existing JSON and thumbnails to construct mosaic") 
@@ -77,6 +89,10 @@ class SourceImageProcessor:
             json.dump(source_img_dict, out) 
 
     def collect_avg_colors_for_source_imgs(self):
+        '''
+        For each thumbnail of the source image, we calculate its average color
+        and store it into a dict that will be saved as a JSON file 
+        '''
         trimmed_thumbnails = self.standardize_source_images()
         source_img_dict = {} 
         for img_class, img in trimmed_thumbnails.items():
@@ -88,6 +104,9 @@ class SourceImageProcessor:
         return source_img_dict
 
     def standardize_source_images(self): 
+        '''
+        Easier to have "square" thumbnails to work with in PIL. 
+        '''
         output = {}
         for img_class in self.get_images_from_img_dir(): 
             thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + helpers.trim_name(img_class) + "_thumbnail.jpg"
@@ -102,6 +121,9 @@ class SourceImageProcessor:
         return output 
 
     def get_images_from_img_dir(self):
+        '''
+        Ignore any non-images when searching the source image dir 
+        '''
         search_dir = self.img_dir 
         if self.is_from_img_sets: 
             search_dir = f"img_sets/{self.img_dir}" 
@@ -110,5 +132,3 @@ class SourceImageProcessor:
                 yield BaseImage(search_dir + "/" + fn) 
 
 
-if __name__ == "__main__":
-    print(read_source_avg_colors())

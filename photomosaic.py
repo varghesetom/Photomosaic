@@ -18,7 +18,7 @@ from BaseImage import BaseImage
 from SourceImageProcessor import SourceImageProcessor 
 from collections import defaultdict 
 
-log = open("log.txt", "w+") 
+#log = open("log.txt", "w+") 
 
 class PhotoMosaic(BaseImage):
 
@@ -50,7 +50,6 @@ class PhotoMosaic(BaseImage):
         for i in range(width // self.piece_width):
             for j in range(height // self.piece_height):
                 regions.append(self.calculate_box_region(i, j))
-        print(f"width: {width}, height: {height}, # of regions: {len(regions)}") 
         self.create_trimmed_mosaic_base() 
         return regions 
 
@@ -62,6 +61,13 @@ class PhotoMosaic(BaseImage):
         return (left, top, right, bottom)
 
     def create_mosaic(self):
+        '''
+        instantiate a SourceImageProcessor and read in the json_data of
+        thumbnails and average color tuples. We create an index and then
+        start matching input image regions to the source image json. 
+        Once we find the closest match, we can then directly paste the 
+        source thumbnail onto the region of the input image 
+        '''
         mosaic = self.create_trimmed_mosaic_base() 
         size = (self.piece_width, self.piece_height) 
         s_img_p = SourceImageProcessor(sys.argv[2], (25,25)) 
@@ -69,11 +75,11 @@ class PhotoMosaic(BaseImage):
         json_index = self.get_index(json_data) 
         try: 
             for region, region_color in self.regions_with_colors.items():
-                log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
+                #log.write(f"REGION: {region}, REGION_COLOR: {region_color}") 
                 source_img_match = self.find_closest_match_with_index(region_color, json_index)  
-                log.write(f"index result for {region_color}, {source_img_match}")
+                #log.write(f"index result for {region_color}, {source_img_match}")
                 if not source_img_match: 
-                    log.write(f"\nNeed to go through entire set of imgs for this color here {region_color}\n") 
+                    #log.write(f"\nNeed to go through entire set of imgs for this color here {region_color}\n") 
                     source_img_match = self.euclidean_match_with_json_data(region_color, json_data) 
                 thumbnail_img = Image.open(source_img_match["image_match"]) 
                 upper_left = (region[0], region[1]) 
@@ -86,6 +92,12 @@ class PhotoMosaic(BaseImage):
             sys.exit(1) 
 
     def create_trimmed_mosaic_base(self):
+        '''
+        Uneven input images will result in the sides of the image not 
+        being properly handled during matching because our regions are 
+        25 x 25 size. Much easier to simply trim the sides and ensure 
+        all regions are accounted for 
+        '''
         mosaic = self.img.copy() 
         width, height = self.img.size 
         count, rem  = divmod(width, self.piece_width) 
@@ -112,17 +124,21 @@ class PhotoMosaic(BaseImage):
                 if dist < min_dist:
                     min_dist = dist 
                     result["image_match"] = name 
-            log.write(f"Returning index result\n") 
+            #log.write(f"Returning index result\n") 
             return result 
 
     def euclidean_match_with_json_data(self, region_color, source_img_data):
+        '''
+        Euclidean distance matching with the json dict. This only occurs if 
+        we couldn't get a match with the index. 
+        '''
         min_dist = sys.maxsize 
         result = {'image_match' : 0}
         for name, color in source_img_data.items():
             dist = self.calculate_euclidean_dist(region_color, color) 
-            log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
+            #log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
             if dist < min_dist: 
-                log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n") 
+                #log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n") 
                 min_dist = dist 
                 result['image_match'] = name
         return result 
@@ -132,24 +148,9 @@ class PhotoMosaic(BaseImage):
         r2, g2, b2 = rgb_tup2 
         return math.sqrt(((r2 - r1) ** 2 + (g1 - g2) ** 2 + (b1 -b2) ** 2))
 
-    def create_pixellation_img(self):
-        width, height = self.img.size 
-        new_width, new_height = width // self.piece_width, height // self.piece_height 
-        assert new_width * new_height == len(self.region_colors), "New image must be equal to dimension of array containing colors for all the broken up pieces of original" 
-        im = Image.new("RGBA", (new_width, new_height)) 
-        counter = 0  
-        for i in range(width // self.piece_width):
-            for j in range(height // self.piece_height):
-                im.putpixel((i, j), self.region_colors[counter]) 
-                counter += 1 
-        im.save(f"pixellated.png") 
-
-
 if __name__ == "__main__":
     pm = PhotoMosaic()
     pm.create_mosaic()
-    print(pm.img.size) 
-    #pm.create_mosaic() 
-    log.close() 
+    #log.close() 
 
 

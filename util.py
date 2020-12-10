@@ -1,3 +1,14 @@
+    def create_pixellation_img(self):
+        width, height = self.img.size 
+        new_width, new_height = width // self.piece_width, height // self.piece_height 
+        assert new_width * new_height == len(self.region_colors), "New image must be equal to dimension of array containing colors for all the broken up pieces of original" 
+        im = Image.new("RGBA", (new_width, new_height)) 
+        counter = 0  
+        for i in range(width // self.piece_width):
+            for j in range(height // self.piece_height):
+                im.putpixel((i, j), self.region_colors[counter]) 
+                counter += 1 
+        im.save(f"pixellated.png") 
 
 def convert_to_rgb(im):
     try:
