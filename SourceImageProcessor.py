@@ -89,7 +89,7 @@ class SourceImageProcessor:
     def standardize_source_images(self): 
         output = {}
         for img_class in self.get_images_from_img_dir(): 
-            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + self.trim_name() + "_thumbnail.jpg"
+            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + self.trim_name(img_class) + "_thumbnail.jpg"
             width, height = img_class.img.size 
             trimmed_img = img_class.img 
             trimmed_img = trim_width(img_class.img, width, height)  
@@ -108,12 +108,12 @@ class SourceImageProcessor:
             if fn.endswith(".jpg") or fn.endswith(".png"): 
                 yield BaseImage(search_dir + "/" + fn) 
 
-def trim_name(img_class):
-    replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
-    new_name = img_class.name
-    for old, new in replacements:
-        new_name = re.sub(old, new, new_name) 
-    return new_name 
+    def trim_name(self, img_class):
+        replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
+        new_name = img_class.name
+        for old, new in replacements:
+            new_name = re.sub(old, new, new_name) 
+        return new_name 
 
 def trim_width(img, width, height):
     if width <= height: return img

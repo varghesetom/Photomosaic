@@ -65,7 +65,7 @@ class PhotoMosaic(BaseImage):
                 source_img_match = self.find_closest_match_with_index(region_color, json_index)  
                 log.write(f"index result for {region_color}, {source_img_match}")
                 if not source_img_match: 
-                    log.write(f"Need to go through entire set of imgs for this color here {region_color}\n") 
+                    log.write(f"\nNeed to go through entire set of imgs for this color here {region_color}\n") 
                     source_img_match = self.euclidean_match_with_json_data(region_color, json_data) 
                 thumbnail_img = Image.open(source_img_match["image_match"]) 
                 upper_left = (region[0], region[1]) 
@@ -114,7 +114,7 @@ class PhotoMosaic(BaseImage):
             dist = self.calculate_euclidean_dist(region_color, color) 
             log.write(f"Name: {name}, Color: {color}, dist: {dist}\n")
             if dist < min_dist: 
-                log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n\n") 
+                log.write(f"MIN DIST: Name: {name}, Dist: {dist}\n") 
                 min_dist = dist 
                 result['image_match'] = name
         return result 

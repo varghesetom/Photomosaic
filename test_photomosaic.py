@@ -61,8 +61,8 @@ def test_calculate_box_region(width, height):
 
 @pytest.mark.parametrize("width, height", [
     (0, 0),
-    (65, 75),
-    (10, 20)
+    (25, 75),
+    (50, 100)
 ]) 
 def test_create_trimmed_mosaic_base_with_no_remainders(width, height):
     new_im = create_test_img(width, height)
