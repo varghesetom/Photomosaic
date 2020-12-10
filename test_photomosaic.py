@@ -1,10 +1,13 @@
 
 import sys 
 import os 
-import pytest 
+import math 
+import subprocess
 import PIL
 from PIL import Image 
 from PhotoMosaic import PhotoMosaic 
+from SourceImageProcessor import SourceImageProcessor 
+import pytest 
 
 pm = PhotoMosaic() 
 
@@ -15,6 +18,8 @@ def test_init_types():
     assert type(pm.palette) == PIL.Image.Image 
     assert type(pm.regions_with_colors) == dict 
     assert type(pm.piece_width) == int 
+    assert divmod(pm.piece_width, 5)[1] == 0 
+    assert divmod(pm.piece_height, 5)[1] == 0 
     assert type(pm.piece_height) == int 
     assert pm.piece_width > 0 
     assert pm.piece_height > 0 
@@ -71,9 +76,70 @@ def test_create_trimmed_mosaic_base_with_no_remainders(width, height):
     assert rem == 0 
     assert new_height == count * new_pm.piece_height 
 
+@pytest.mark.parametrize("width, height", [
+    (67, 79),
+    (12, 28)
+]) 
+def test_create_trimmed_mosaic_base_with_remainders(width, height):
+    new_im = create_test_img(width, height)
+    new_pm = PhotoMosaic(new_im) 
+    new_mosaic_base = new_pm.create_trimmed_mosaic_base() 
+    new_width, new_height = new_mosaic_base.size
+    count, rem = divmod(width, new_pm.piece_width) 
+    assert rem != 0 
+    assert new_width == count * new_pm.piece_width 
+    count, rem = divmod(height, new_pm.piece_height) 
+    assert rem != 0 
+
+@pytest.mark.parametrize("tuple1, tuple2", [
+    ((10,10,10), (12,12,12)),
+    ((14, 12, 58), (523, 484, 980)),
+    ((0, 0, 0), (-1, -1, -1)) 
+])
+def test_euclidean_distance(tuple1, tuple2):
+    r1, g1, b1 = tuple1 
+    r2, g2, b2 = tuple2 
+    val = math.sqrt(((r2 -r1) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2))
+    assert pm.calculate_euclidean_dist(tuple1, tuple2) == val 
+
+
 def create_test_img(width, height):
     im = Image.new("RGBA", (width, height))
     (im.putpixel((i, j), (0,0,0)) for i in range(width) for j in range(height)) 
     return im 
+
+''' Testing SourceImageProcessor '''
+
+def test_source_image_processor_init():
+    sip = SourceImageProcessor("test") 
+    assert sip.size == (50, 50) 
+    assert sip.is_from_img_sets == False 
+
+def test_img_dir_name_cleaned(): 
+    test_img_dir = "img_sets/example_dir" 
+    sip_from_img_set = SourceImageProcessor("img_sets/example_dir") 
+    assert sip_from_img_set.is_from_img_sets == True 
+    assert "example_dir" == sip_from_img_set.img_dir_name_cleaned("img_sets/example_dir") 
+    assert "img_setsexample_dir" == sip_from_img_set.img_dir_name_cleaned("img_setsexample_dir") 
+
+def test_creation_of_img_subdirs():
+    sip = SourceImageProcessor("test") 
+    assert os.path.exists("img_sets/test") == False 
+    assert os.path.exists("img_sets/test/thumbnails") == False 
+    sip.create_img_subdirs() 
+    assert os.path.exists("img_sets/test") == True 
+    assert os.path.exists("img_sets/test/thumbnails") == True  
+    subprocess.Popen(f"rm -rf img_sets/test", shell=True) 
+
+def test_reading_from_JSON():
+    sip = SourceImageProcessor("test") 
+    assert sip.read_from_existing_JSON_file() == None 
+    p = subprocess.Popen(f"touch test.txt", shell = True) 
+    p.wait() 
+    assert sip.read_from_existing_JSON_file() == None 
+    subprocess.Popen(f"rm test.txt", shell = True) 
+
+
+    
 
 

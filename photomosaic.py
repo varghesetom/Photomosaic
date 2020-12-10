@@ -14,6 +14,7 @@ from SourceImageProcessor import SourceImageProcessor
 class PhotoMosaic(BaseImage):
 
     @validation_util.validate_input_is_image 
+    @validation_util.validate_img_dir 
     def __init__(self, filename = None, piece_width=5, piece_height=5):
         if filename is None: 
             filename = sys.argv[1] 
@@ -72,7 +73,6 @@ class PhotoMosaic(BaseImage):
         mosaic_width = self.piece_width * count 
         count, rem = divmod(height, self.piece_height) 
         mosaic_height = self.piece_height * count 
-        print(width, height, mosaic.crop((0,0,mosaic_width,mosaic_height)).size)
         return mosaic.crop((0, 0, mosaic_width, mosaic_height)) 
 
     def match_input_region_to_source_imgs(self, region_color, source_img_data):

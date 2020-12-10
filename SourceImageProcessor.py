@@ -18,6 +18,11 @@ class SourceImageProcessor:
         self.size = size 
 
     def img_dir_name_cleaned(self, img_dir):
+        '''
+        User could provide image directory from same file location or use one 
+        from the "img_sets". If it's the latter, then need to trim out the leading
+        'img_set' verbiage before continuing. 
+        '''
         if re.search(r'img_sets', img_dir): 
             base_img_dir = re.sub("img_sets/", "", img_dir)  
             self.is_from_img_sets = True 
@@ -26,21 +31,30 @@ class SourceImageProcessor:
         return base_img_dir 
 
     def read_source_avg_colors(self): 
-        if not os.path.exists(f"img_sets/{self.img_dir}"):
-            p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}", shell = True) 
-        if not os.path.exists(f"img_sets/{self.img_dir}/thumbnails"):
-            p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}/thumbnails/", shell = True) 
+        contents = self.read_from_existing_JSON_file() 
+        if not contents: 
+            print(f"JSON file provided does not exist. Running program to save avg_color results to JSON file as 'img_sets/img_jsons/{self.img_dir}.json' and re-trying to read JSON contents.") 
+            self.create_img_subdirs() 
+            self.save_avg_colors_to_JSON() 
+            return self.read_JSON_contents(loc1, loc2)
+        return contents 
+
+    def read_from_existing_JSON_file(self):
         loc1 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
-        loc2 = self.img_dir + ".txt" 
-        if (os.path.isfile(loc1) or os.path.isfile(loc2)): 
+        if os.path.isfile(loc1): 
             thumbnail_path = f"img_sets/{self.img_dir}/thumbnails" 
             if not os.path.exists(thumbnail_path) or not os.listdir(thumbnail_path): 
                 self.save_avg_colors_to_JSON() 
             else: 
                 return self.read_JSON_contents(loc1, loc2) 
-        print(f"JSON file provided does not exist. Running program to save avg_color results to JSON file as '{self.img_dir}.json' and re-trying to read JSON contents.") 
-        self.save_avg_colors_to_JSON() 
-        return self.read_JSON_contents(loc1, loc2)
+    
+    def create_img_subdirs(self):
+        if not os.path.exists(f"img_sets/{self.img_dir}"):
+            p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}", shell = True) 
+            p.wait() 
+        if not os.path.exists(f"img_sets/{self.img_dir}/thumbnails"):
+            p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}/thumbnails/", shell = True) 
+            p.wait() 
 
     def read_JSON_contents(self, loc1, loc2):
         try: 
@@ -73,17 +87,11 @@ class SourceImageProcessor:
     def standardize_source_images(self): 
         output = {}
         for img_class in self.get_images_from_img_dir(): 
-            replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
-            new_name = img_class.name
-            for old, new in replacements:
-                new_name = re.sub(old, new, new_name) 
-            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + new_name + "_thumbnail.jpg"
+            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + self.trim_name() + "_thumbnail.jpg"
             width, height = img_class.img.size 
             trimmed_img = img_class.img 
-            if width > height:
-                trimmed_img = trim_width(img_class.img, width, height)  
-            elif width < height: 
-                trimmed_img = trim_height(img_class.img, width, height)  
+            trimmed_img = trim_width(img_class.img, width, height)  
+            trimmed_img = trim_height(img_class.img, width, height)  
             thumbnail = trimmed_img.thumbnail(self.size)  
             if not os.path.exists(f"{thumbnail_name}.png"):
                 trimmed_img.save(thumbnail_name, "png")   ## the trimmed thumbnail will be used for our img
@@ -97,6 +105,13 @@ class SourceImageProcessor:
         for fn in os.listdir(search_dir):
             if fn.endswith(".jpg") or fn.endswith(".png"): 
                 yield BaseImage(search_dir + "/" + fn) 
+
+def trim_name(img_class):
+    replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
+    new_name = img_class.name
+    for old, new in replacements:
+        new_name = re.sub(old, new, new_name) 
+    return new_name 
 
 def trim_width(img, width, height):
     if width <= height: return img
