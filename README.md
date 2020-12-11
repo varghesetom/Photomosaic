@@ -4,7 +4,10 @@ Python CLI application to turn an input image into a photomosaic using images fr
 
 ## Usage 
 
-Developed with Python 3.8 on MacOS Catalina. Create a virtual environment as ```virtualenv venv ```, activate the environment with ```source venv/bin/activate```, and then innstall packages:  ```pip install -r requirements.txt``` 
+Developed with Python 3.8 on MacOS Catalina. 
+1. Create a virtual environment as ```virtualenv venv ```, 
+2. Activate the environment with ```source venv/bin/activate```
+3. Install packages:  ```pip install -r requirements.txt``` 
 
 When running application, need an input image and source image dir. Can place the source image dir either in the same location as the input_img and other python files OR place in "img_sets/". 
 
