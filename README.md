@@ -11,7 +11,7 @@ Developed with Python 3.8 on MacOS Catalina.
 
 When running application, need an input image and source image dir. Can place the source image dir either in the same location as the input_img and other python files OR place in "img_sets/". 
 
-Run from command line as "python photomosaic.py [INPUT_IMG] [IMG_DIR]". E.g. ```python photomosaic.py eagle.jpg img_sets/flower_imgs/```
+Run from command line as "python photomosaic.py [INPUT_IMG] [IMG_DIR]". E.g. ```python photomosaic.py eagle.jpg img_sets/flower_imgs```
 
 ## License 
 [MIT](https://choosealicense.com/licenses/mit/)
