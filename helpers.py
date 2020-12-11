@@ -6,12 +6,6 @@ def round_to_nearest_10(num):
     else:
         return int((num + 10) / 10) * 10 
 
-def trim_name(img_class):
-    replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
-    new_name = img_class.name
-    for old, new in replacements:
-        new_name = re.sub(old, new, new_name) 
-    return new_name 
 
 def trim_width(img, width, height):
     if width <= height: return img

@@ -109,7 +109,7 @@ class SourceImageProcessor:
         '''
         output = {}
         for img_class in self.get_images_from_img_dir(): 
-            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + helpers.trim_name(img_class) + "_thumbnail.jpg"
+            thumbnail_name = f"img_sets/{self.img_dir}/thumbnails/" + self.trim_name(img_class) + "_thumbnail.jpg"
             width, height = img_class.img.size 
             trimmed_img = img_class.img 
             trimmed_img = helpers.trim_width(img_class.img, width, height)  
@@ -128,7 +128,13 @@ class SourceImageProcessor:
         if self.is_from_img_sets: 
             search_dir = f"img_sets/{self.img_dir}" 
         for fn in os.listdir(search_dir):
-            if fn.endswith(".jpg") or fn.endswith(".png"): 
+            if fn.endswith(".jpg") or fn.endswith(".png") or fn.endswith(".jpeg"): 
                 yield BaseImage(search_dir + "/" + fn) 
 
+    def trim_name(self, img_class):
+        replacements = [(self.img_dir, ""), ("/", ""), ("img_sets", "")] 
+        new_name = img_class.name
+        for old, new in replacements:
+            new_name = re.sub(old, new, new_name) 
+        return new_name 
 
