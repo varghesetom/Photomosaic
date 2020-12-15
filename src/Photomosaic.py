@@ -29,7 +29,6 @@ can justify just iterating the entire set.
 """
 
 
-# from utils import validation_util
 from utils.helpers import round_to_nearest_10
 from PIL import Image
 from BaseImage import BaseImage
@@ -43,16 +42,8 @@ import math
 
 
 class PhotoMosaic(BaseImage):
-
-    # @validation_util.validate_input_is_image
-    # @validation_util.validate_img_dir
     def __init__(self, filename=None, directory=None, piece_width=25,
                  piece_height=25):
-        # if filename is None:
-        #     raise NameError('Error')
-        #     filename = sys.argv[1]
-        # else:   ## used only for testing -- the client should still pass in a CLI image arg
-        # self.img = filename
         super().__init__(filename)
         self.directory = directory
 
@@ -79,7 +70,7 @@ class PhotoMosaic(BaseImage):
         top = height * self.piece_height 
         right = left + self.piece_width 
         bottom = top + self.piece_height 
-        return (left, top, right, bottom)
+        return left, top, right, bottom
 
     def create_mosaic(self):
         '''
@@ -162,5 +153,6 @@ class PhotoMosaic(BaseImage):
                 result['image_match'] = name
         return result 
 
-    def calculate_euclidean_dist(self, rgb_tup1, rgb_tup2):
+    @staticmethod
+    def calculate_euclidean_dist(rgb_tup1, rgb_tup2):
         return math.sqrt(sum([(a - b)**2 for a, b in zip(rgb_tup1, rgb_tup2)]))

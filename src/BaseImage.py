@@ -1,29 +1,45 @@
-"""
-Initializing image arguments into true PIL.Image classes. "get_avg_color"
-is also placed here because this method is closely related to PIL.Images
-and should only be used in relation to the BaseImage. In the program,
-this method is used to calculate the average color for each square of
-the base image.
-"""
-
-from PIL import Image
+""" In this script, The image arguments are initialized into PIL.Image classes."""
 
 import sys
 import pathlib
 
+from PIL import Image
+
 
 class BaseImage(object):
+    """BaseImage initializing image arguments into true PIL.Image classes.
+       "get_avg_color" is also placed here because this method is closely
+       related to PIL.Images and should only be used in relation to the
+       BaseImage. In the program, this method is used to calculate the
+       average color for each square of the base image.
+
+       Attributes:
+           filename: (string) name of the file
+           img: (PIL.image) image from the file read in
+    """
 
     def __init__(self, filename):
+        """Initializes BaseImage with filename and image."""
         self.name = filename
         self.img = self._get_img(filename)
 
     def _get_img(self, filename):
+        """Retrieves the image from the specified filename.
+
+           Args:
+               filename: (string) the name of the file
+
+           Returns:
+               image: (PIL.image) the image
+
+            Raises:
+                FileNotFoundError: if file not found
+        """
 
         try:
-            with Image.open(filename) as im:
-                im.load()  # PIL can be "lazy" so need to explicitly load image
-                return im
+            with Image.open(filename) as image:
+                image.load()  # PIL can be "lazy" so need to explicitly load image
+                return image
         except OSError:
             # Check if the file does in fact exist
 
@@ -32,14 +48,15 @@ class BaseImage(object):
                 if pathlib.Path(filename).resolve(strict=True):
                     pass
                 else:
-                    raise FileNotFoundError
+                    raise FileNotFoundError("Error. File not found.")
             else:
                 if pathlib.Path(filename).resolve():
                     pass
                 else:
-                    raise FileNotFoundError
+                    raise FileNotFoundError("Error. File not found.")
 
-    def get_avg_color(self, region):
+    @staticmethod
+    def get_avg_color(region):
         """Given a region in a PIL Image, return average value of
            color as (r, g, b).
 
