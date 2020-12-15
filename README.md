@@ -13,5 +13,9 @@ When running application, need an input image and source image dir. Can place th
 
 Run from command line as "python photomosaic.py [INPUT_IMG] [IMG_DIR]". E.g. ```python photomosaic.py eagle.jpg img_sets/flower_imgs```
 
+## References
+
+[Efficient and precise calculation of the euclidean distance](https://stackoverflow.com/questions/37794849/efficient-and-precise-calculation-of-the-euclidean-distance)
+
 ## License 
 [MIT](https://choosealicense.com/licenses/mit/)
