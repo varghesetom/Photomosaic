@@ -15,14 +15,15 @@ it easier to directly read in all the thumbnails and their average colors
 instead of calculating them all over again.
 """
 
-from BaseImage import BaseImage
-from utils import helpers
+from src.BaseImage import BaseImage
+from src.utils import helpers
 
 import os
 import subprocess 
 import json 
 import re
 
+# TODO: Add DocStrings below
 
 class SourceImageProcessor(object):
 
@@ -48,31 +49,31 @@ class SourceImageProcessor(object):
         the source image subdirectory and start the
         calculation process to store them to JSON.
         """
-        contents = self.read_from_existing_JSON_file() 
+        contents = self.read_from_existing_json_file()
         if not contents: 
             print(f"JSON file provided does not exist. Running program to save "
                   f"avg_color results to JSON file as "
                   f"'img_sets/img_jsons/{self.img_dir}.json' and "
                   f"re-trying to read JSON contents.")
             self.create_img_subdirs() 
-            self.save_avg_colors_to_JSON() 
-            return self.read_JSON_contents()
+            self.save_avg_colors_to_json()
+            return self.read_json_contents()
         return contents 
 
-    def read_from_existing_JSON_file(self):
+    def read_from_existing_json_file(self):
         """Cannot read from a JSON if it and its thumbnails don't exist"""
 
         loc1 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
-        if os.path.isfile(loc1) and self.check_if_JSON_corresponding_thumbnails():  
+        if os.path.isfile(loc1) and self.check_if_json_corresponding_thumbnails():
             print("Using existing JSON and thumbnails to construct mosaic") 
-            return self.read_JSON_contents() 
+            return self.read_json_contents()
         return False 
 
-    def check_if_JSON_corresponding_thumbnails(self):
+    def check_if_json_corresponding_thumbnails(self):
         thumbnail_path = f"img_sets/{self.img_dir}/thumbnails" 
         return False if not os.path.exists(thumbnail_path) or not os.listdir(thumbnail_path) else True
 
-    def read_JSON_contents(self):
+    def read_json_contents(self):
         loc1 = f"img_sets/img_jsons/" + self.img_dir + ".txt" 
         try: 
             with open(loc1, 'r') as json_file:
@@ -84,15 +85,17 @@ class SourceImageProcessor(object):
             print("JSON file is not found. Exiting...") 
             return False 
     
-    def create_img_subdirs(self):
-        if not os.path.exists(f"img_sets/{self.img_dir}"):
-            p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}", shell = True) 
-            p.wait() 
-        if not os.path.exists(f"img_sets/{self.img_dir}/thumbnails"):
-            p = subprocess.Popen(f"mkdir img_sets/{self.img_dir}/thumbnails/", shell = True) 
-            p.wait() 
+    def create_img_subdirs(self, path=None):
+        if path is None:
+            path = f"img_sets/{self.img_dir}"
+        if not os.path.exists(path):
+            p = subprocess.Popen(f"mkdir "+path, shell=True)
+            p.wait()
+        if not os.path.exists(path+f"/thumbnails"):
+            p = subprocess.Popen(f"mkdir "+path+f"/thumbnails", shell=True)
+            p.wait()
 
-    def save_avg_colors_to_JSON(self):
+    def save_avg_colors_to_json(self):
         source_img_dict = [self.collect_avg_colors_for_source_imgs()]
         with open(f"img_sets/img_jsons/{self.img_dir}" + ".txt", "w") as out:
             json.dump(source_img_dict, out) 

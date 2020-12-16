@@ -1,4 +1,5 @@
-"""Main driver file for the Photomasic work."""
+#!/usr/bin/env python
+"""Main driver file for the Photomosaic project."""
 
 import argparse
 
@@ -12,7 +13,7 @@ def parse_args():
     """Takes in the arguments passed in the shell to be used in the main script.
 
        Returns:
-           args -- arguments
+           args: (strings) arguments
     """
     parser = argparse.ArgumentParser(description='Turns input image '
                                                  'into a photomosaic')

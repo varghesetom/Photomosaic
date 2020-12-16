@@ -1,4 +1,4 @@
-"""This script provides helper functions for the Photomosaic file."""
+"""This script provides helper functions for the Photomosaic.py file."""
 
 
 def round_to_nearest_10(num):

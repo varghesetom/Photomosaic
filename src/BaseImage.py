@@ -1,9 +1,12 @@
-""" In this script, The image arguments are initialized into PIL.Image classes."""
+#!/usr/bin/env python
+
+""" In this script, the image arguments are initialized into PIL.Image classes."""
 
 import sys
 import pathlib
 
 from PIL import Image
+from src.utils.validation_util import validate_filename
 
 
 class BaseImage(object):
@@ -18,6 +21,7 @@ class BaseImage(object):
            img: (PIL.image) image from the file read in
     """
 
+    @validate_filename
     def __init__(self, filename):
         """Initializes BaseImage with filename and image."""
         self.name = filename
@@ -66,6 +70,9 @@ class BaseImage(object):
             Returns:
                 a tuple with the average color values for r, g, b
         """
+
+        # TODO: Need to check type before coming in here.
+
         width, height = region.size
         rgb_pixels = region.getcolors(width * height)
         sum_rgb = [(x[1][0], x[1][1], x[1][2]) for x in rgb_pixels]

@@ -42,6 +42,7 @@ import math
 
 
 class PhotoMosaic(BaseImage):
+
     def __init__(self, filename=None, directory=None, piece_width=25,
                  piece_height=25):
         super().__init__(filename)

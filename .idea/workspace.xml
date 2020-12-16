@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="44b737be-0064-4696-a387-b1ed6534d160" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/BaseImage.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SourceImageProcessor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/photomosaic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Photomosaic.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Photomosaic.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/BaseImage.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/BaseImage.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Photomosaic.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Photomosaic.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SourceImageProcessor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/SourceImageProcessor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tests/test_baseimage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tests/test_sourceimageprocessor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/test_sourceimageprocessor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/helpers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils/validation_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/validation_util.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_photomosaic.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/validation_util.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,11 +40,21 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="PyConsoleConfigurable.Python Console" />
   </component>
-  <component name="RunManager" selected="Python tests.pytest for test_baseimage.BaseImageTestCase.test_correct_filepath">
-    <configuration name="pytest for test_baseimage.BaseImageTestCase" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="Photomosaic" is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+        <option name="myModuleName" value="Photomosaic" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python tests.pytest in test_sourceimageprocessor.py">
+    <configuration name="pytest for test_sourceimageprocessor.ReadingFromJsonFileTestCase" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="Photomosaic" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -53,11 +66,11 @@
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_baseimage.BaseImageTestCase&quot;" />
+      <option name="_new_target" value="&quot;test_sourceimageprocessor.ReadingFromJsonFileTestCase&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for test_baseimage.BaseImageTestCase.test_correct_filepath" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for test_sourceimageprocessor.ReadingFromJsonFileTestCase.test_it_all_works" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="Photomosaic" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -69,11 +82,11 @@
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_baseimage.BaseImageTestCase.test_correct_filepath&quot;" />
+      <option name="_new_target" value="&quot;test_sourceimageprocessor.ReadingFromJsonFileTestCase.test_it_all_works&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest in test_baseimage.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for test_sourceimageprocessor.ReadingFromJsonFileTestCase.test_thumbnails_in_directory" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="Photomosaic" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -85,32 +98,49 @@
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/src/tests/test_baseimage.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="_new_target" value="&quot;test_sourceimageprocessor.ReadingFromJsonFileTestCase.test_thumbnails_in_directory&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest in test_photomosaic.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for test_sourceimageprocessor.SourceImageProcessorTestCase" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="Photomosaic" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/src/test_photomosaic.py&quot;" />
+      <option name="_new_target" value="&quot;test_sourceimageprocessor.SourceImageProcessorTestCase&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in test_sourceimageprocessor.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="Photomosaic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/src/tests/test_sourceimageprocessor.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.pytest for test_baseimage.BaseImageTestCase.test_correct_filepath" />
-        <item itemvalue="Python tests.pytest in test_baseimage.py" />
-        <item itemvalue="Python tests.pytest for test_baseimage.BaseImageTestCase" />
-        <item itemvalue="Python tests.pytest in test_photomosaic.py" />
+        <item itemvalue="Python tests.pytest in test_sourceimageprocessor.py" />
+        <item itemvalue="Python tests.pytest for test_sourceimageprocessor.ReadingFromJsonFileTestCase" />
+        <item itemvalue="Python tests.pytest for test_sourceimageprocessor.ReadingFromJsonFileTestCase.test_it_all_works" />
+        <item itemvalue="Python tests.pytest for test_sourceimageprocessor.SourceImageProcessorTestCase" />
+        <item itemvalue="Python tests.pytest for test_sourceimageprocessor.ReadingFromJsonFileTestCase.test_thumbnails_in_directory" />
       </list>
     </recent_temporary>
   </component>
