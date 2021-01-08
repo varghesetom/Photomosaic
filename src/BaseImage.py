@@ -1,16 +1,15 @@
 #!/usr/bin/env python
-
 """ In this script, the image arguments are initialized into PIL.Image classes."""
 
 import sys
 import pathlib
 
 from PIL import Image
-from src.utils.validation_util import validate_filename
+from utils.validation_util import validate_filename
 
 
 class BaseImage(object):
-    """BaseImage initializing image arguments into true PIL.Image classes.
+    """BaseImage initializes image arguments into true PIL.Image classes.
        "get_avg_color" is also placed here because this method is closely
        related to PIL.Images and should only be used in relation to the
        BaseImage. In the program, this method is used to calculate the
@@ -42,7 +41,10 @@ class BaseImage(object):
 
         try:
             with Image.open(filename) as image:
-                image.load()  # PIL can be "lazy" so need to explicitly load image
+
+                # PIL can be "lazy" so need to explicitly load image
+                image.load()
+
                 return image
         except OSError:
             # Check if the file does in fact exist
@@ -51,13 +53,11 @@ class BaseImage(object):
             if sys.version_info[1] >= 6:
                 if pathlib.Path(filename).resolve(strict=True):
                     pass
-                else:
-                    raise FileNotFoundError("Error. File not found.")
+                raise FileNotFoundError("Error. File not found.")
             else:
                 if pathlib.Path(filename).resolve():
                     pass
-                else:
-                    raise FileNotFoundError("Error. File not found.")
+                raise FileNotFoundError("Error. File not found.")
 
     @staticmethod
     def get_avg_color(region):
@@ -70,8 +70,6 @@ class BaseImage(object):
             Returns:
                 a tuple with the average color values for r, g, b
         """
-
-        # TODO: Need to check type before coming in here.
 
         width, height = region.size
         rgb_pixels = region.getcolors(width * height)

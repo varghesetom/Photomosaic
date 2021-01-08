@@ -1,6 +1,6 @@
-from src.BaseImage import BaseImage
-
 import unittest
+
+from src.BaseImage import BaseImage
 
 
 class BaseImageTestCase(unittest.TestCase):
@@ -22,6 +22,7 @@ class InitTestCase(BaseImageTestCase):
             self.base_im(None)
 
     def test_incorrect_type_as_filepath(self):
+        """Note: this test will fail unless the type error is checked."""
         with self.assertRaises(TypeError):
             self.base_im(4.55)
 
@@ -30,11 +31,6 @@ class GetImgTestCase(BaseImageTestCase):
     def test_incorrect_filepath(self):
         with self.assertRaises(FileNotFoundError):
             self.base_im('blah')
-
-# TODO: Unit test this...
-# class GetAvgColor(BaseImageTestCase):
-#     def test_no_region(self):
-#         self.base_im(self.sample_image_path).get_avg_color()
 
 
 if __name__ == '__main__':
