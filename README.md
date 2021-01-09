@@ -10,17 +10,15 @@ Developed with Python 3.8 on MacOS Catalina.
 2. Activate the environment with ```source venv/bin/activate```
 3. Install packages:  ```pip3 install -r requirements.txt``` 
 
-When running application, need an input image and source image dir. Can place the source image dir either in the same location as the input_img and other python files OR place in "img_sets/". 
+When running application, need an input image and source image dir. Can place the source image dir either in the same location as the input_img and other python files OR place in "img_sets/".
+
+First, enter into the Photomosaic directory: ``cd Photomosaic``
 
 Run from command line as "python3 src/main.py --input [INPUT_IMG] --directory [IMG_DIR]". 
 
 E.g. ```python3 src/main.py --input input/eagle.jpg --directory img_sets/flower_imgs```
 
-To run the unittests, you will first need to add in the module level for each file in the src folder. 
-
-So, for instance, ```from utils.helpers import trim_width, trim_height``` --> ```from src.utils.helpers import trim_width, trim_height```
-
-Then run ```python -m unittest discover -s test -p test_*.py```
+To run the unittests, run ```python -m unittest discover -s test -p test_*.py```
 
 
 ## References
