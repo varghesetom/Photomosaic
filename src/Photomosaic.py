@@ -59,6 +59,7 @@ class PhotoMosaic(BaseImage):
 
         # Logger
         self.the_logger = None if not debug else Logger(log_file_name='test_log_1.log')
+        self.turn_logger_on = False if self.the_logger is None else True
 
     def get_avg_color_for_regions(self):
         """Determine the average color for each box region of the input image."""
@@ -104,11 +105,14 @@ class PhotoMosaic(BaseImage):
         try: 
             for region, region_color in self.regions_with_colors.items():
 
-                # self.the_logger.log_message(f"REGION: {region}, REGION_COLOR: {region_color}")
+                if self.turn_logger_on:
+                    # Logs message
+                    self.the_logger.log_message(f"REGION: {region}, REGION_COLOR: {region_color}")
 
                 source_img_match = self.find_closest_match_with_index(region_color, json_index)
 
-                # self.the_logger.log_message(f"index result for {region_color}, {source_img_match}")
+                if self.turn_logger_on:
+                    self.the_logger.log_message(f"index result for {region_color}, {source_img_match}")
 
                 if not source_img_match:
                     source_img_match = self.euclidean_match_with_json_data(region_color, json_data)
