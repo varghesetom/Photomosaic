@@ -18,9 +18,9 @@ E.g. ```python3 src/main.py --input input/eagle.jpg --directory img_sets/flower_
 
 To run the unittests, you will first need to add in the module level for each file in the src folder. 
 
-So for instance, ```from utils.helpers import trim_width, trim_height``` --> ```from src.utils.helpers import trim_width, trim_height```.
+So, for instance, ```from utils.helpers import trim_width, trim_height``` --> ```from src.utils.helpers import trim_width, trim_height```
 
-Then run ```python -m unittest discover -s test -p test_*.py```.
+Then run ```python -m unittest discover -s test -p test_*.py```
 
 
 ## References
@@ -45,8 +45,11 @@ Then run ```python -m unittest discover -s test -p test_*.py```.
 
 [Effective Python Testing With Pytest](https://realpython.com/pytest-python-testing/)
 
-
 [How to write to a file, using the logging Python module?](https://stackoverflow.com/questions/6386698/how-to-write-to-a-file-using-the-logging-python-module)
+
+[gitignore does not ignore .idea directory](https://stackoverflow.com/questions/36839838/gitignore-does-not-ignore-idea-directory)
+
+[Cleaning up git github repository without deleting .git directory](https://panjeh.medium.com/cleaning-up-git-github-repository-without-deleting-git-directory-c86b7415b51b)
 
 
 ## TODO:
