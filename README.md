@@ -13,9 +13,11 @@ Developed with Python 3.8 on MacOS Catalina.
 When running application, need an input image and source image dir. Can place the source image dir either in the same location as the input_img and other python files OR place in "img_sets/". 
 
 Run from command line as "python3 src/main.py --input [INPUT_IMG] --directory [IMG_DIR]". 
+
 E.g. ```python3 src/main.py --input eagle.jpg --directory img_sets/flower_imgs```
 
 To run the unittests, you will need to add in the module level for each file in the src folder. 
+
 So for instance, ```from utils.helpers import trim_width, trim_height``` --> ```from src.utils.helpers import trim_width, trim_height```.
 
 
